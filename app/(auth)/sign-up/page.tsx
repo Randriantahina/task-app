@@ -6,10 +6,14 @@ import { setDoc, doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/src/components/ui/button';
+import { Eye, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
+import Loading from '@/src/components/Loading';
 
 const SignUp = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState(false);
   const [createUserWithEmailAndPassword, user, loading, error] =
     useCreateUserWithEmailAndPassword(auth);
   const router = useRouter();
@@ -17,8 +21,9 @@ const SignUp = () => {
   const handleSignUp = async () => {
     try {
       const res = await createUserWithEmailAndPassword(email, password);
+
       if (!res || !res.user) {
-        console.warn('Erreur création utilisateur');
+        toast.error('Erreur lors de la création du compte.');
         return;
       }
 
@@ -26,7 +31,6 @@ const SignUp = () => {
       const userDocRef = doc(db, 'users', uid);
       const userDocSnap = await getDoc(userDocRef);
 
-      // Si l'utilisateur n'existe pas déjà dans Firestore, on le crée
       if (!userDocSnap.exists()) {
         await setDoc(userDocRef, {
           email: res.user.email,
@@ -34,13 +38,14 @@ const SignUp = () => {
         });
       }
 
+      toast.success('Compte créé avec succès !');
       sessionStorage.setItem('user', 'true');
       setEmail('');
       setPassword('');
-      router.push('/'); // Redirige vers page d'accueil
+      router.push('/sign-in');
     } catch (e) {
       console.error('Erreur inscription :', e);
-      alert('Impossible de créer un compte.');
+      toast.error('Impossible de créer un compte. Vérifiez les informations.');
     }
   };
 
@@ -52,8 +57,15 @@ const SignUp = () => {
     setPassword(e.target.value);
   };
 
+  const toggleShowPassword = () => setShowPassword((prev) => !prev);
+
+  // 👉 Affiche le loader si loading === true
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
         <h1 className="text-white text-2xl mb-5 text-center">Sign Up</h1>
 
@@ -64,20 +76,34 @@ const SignUp = () => {
           onChange={handleEmailChange}
           className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
         />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={handlePasswordChange}
-          className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
-        />
+        <div className="relative mb-4">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Password"
+            value={password}
+            onChange={handlePasswordChange}
+            className="w-full p-3 bg-gray-700 rounded outline-none text-white placeholder-gray-500 pr-10"
+          />
+          <button
+            type="button"
+            onClick={toggleShowPassword}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+            tabIndex={-1}
+            aria-label={
+              showPassword
+                ? 'Masquer le mot de passe'
+                : 'Afficher le mot de passe'
+            }
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
 
         <button
           onClick={handleSignUp}
           className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500"
         >
-          {loading ? 'Création...' : 'Sign Up'}
+          Sign Up
         </button>
 
         {error && (

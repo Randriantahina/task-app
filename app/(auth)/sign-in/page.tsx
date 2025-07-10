@@ -1,50 +1,66 @@
 'use client';
-import { useState, ChangeEvent } from 'react';
-import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useState, ChangeEvent, useEffect } from 'react';
+import {
+  useSignInWithEmailAndPassword,
+  useAuthState,
+} from 'react-firebase-hooks/auth';
 
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/src/lib/firebase';
 import { Button } from '@/src/components/ui/button';
 import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
+import Loading from '@/src/components/Loading';
 
 const SignIn = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [signInWithEmailAndPassword, user, loading, error] =
+  const [showPassword, setShowPassword] = useState(false);
+  const [signInWithEmailAndPassword, , signInLoading, signInError] =
     useSignInWithEmailAndPassword(auth);
+
+  const [user, authLoading] = useAuthState(auth);
+
   const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      // L’utilisateur est connecté, redirection vers dashboard
+      router.push('/dashboard/acceuil');
+    }
+  }, [user, authLoading, router]);
 
   const handleSignIn = async () => {
     try {
-      console.log('Tentative de connexion avec :', email, password);
       const res = await signInWithEmailAndPassword(email, password);
 
       if (!res || !res.user) {
-        console.warn('Aucun utilisateur trouvé');
+        toast.warning('Aucun utilisateur trouvé.');
         return;
       }
 
       const uid = res.user.uid;
 
-      // 🔍 Vérifie si le document utilisateur existe dans Firestore
       const userDocRef = doc(db, 'users', uid);
       const userDocSnap = await getDoc(userDocRef);
 
       if (!userDocSnap.exists()) {
-        console.warn(" L'utilisateur n'existe pas dans Firestore !");
-        alert("Ce compte n'est pas encore enregistré dans la base de données.");
+        toast.error(
+          "Ce compte n'est pas encore enregistré dans la base de données."
+        );
         return;
       }
 
-      // ✅ Connexion et utilisateur trouvé dans Firestore
+      toast.success('Connexion réussie !');
       sessionStorage.setItem('user', 'true');
       setEmail('');
       setPassword('');
-      router.push('/');
+      // Pas besoin de router.push ici
     } catch (e) {
       console.error('Erreur lors de la connexion :', e);
-      alert('Erreur de connexion. Vérifiez votre email et mot de passe.');
+      toast.error('Erreur de connexion. Vérifiez votre email et mot de passe.');
     }
   };
 
@@ -55,11 +71,24 @@ const SignIn = () => {
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
   };
+  const toggleShowPassword = () => setShowPassword((prev) => !prev);
+
+  // Affiche loading global ou loading connexion
+  if (authLoading || signInLoading) {
+    return <Loading />;
+  }
+
+  // Si utilisateur connecté, on ne montre rien car redirection en cours dans useEffect
+  if (user) {
+    return null;
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
-        <h1 className="text-white text-2xl mb-5 text-center">Sign In</h1>
+        <h1 className="text-white text-2xl mb-5 text-center font-pacifico">
+          Sign In
+        </h1>
 
         <input
           type="email"
@@ -69,23 +98,40 @@ const SignIn = () => {
           className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
         />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={handlePasswordChange}
-          className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
-        />
+        <div className="relative mb-4">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Password"
+            value={password}
+            onChange={handlePasswordChange}
+            className="w-full p-3 bg-gray-700 rounded outline-none text-white placeholder-gray-500 pr-10"
+          />
+          <button
+            type="button"
+            onClick={toggleShowPassword}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+            tabIndex={-1}
+            aria-label={
+              showPassword
+                ? 'Masquer le mot de passe'
+                : 'Afficher le mot de passe'
+            }
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
 
         <button
           onClick={handleSignIn}
           className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500"
         >
-          {loading ? 'Connexion...' : 'Sign In'}
+          Sign In
         </button>
 
-        {error && (
-          <p className="text-red-500 mt-4 text-sm">Erreur : {error.message}</p>
+        {signInError && (
+          <p className="text-red-500 mt-4 text-sm">
+            Erreur : {signInError.message}
+          </p>
         )}
 
         <div className="text-center">
