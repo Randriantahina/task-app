@@ -2,68 +2,126 @@
 
 import { db } from '@/src/lib/firebase';
 import { useEffect, useState } from 'react';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  orderBy,
+  query,
+  deleteDoc,
+  doc,
+  where,
+} from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Card, CardContent } from '@/src/components/ui/card';
 import Nav from '@/src/components/Nav';
+import { Button } from '@/src/components/ui/button';
 
 interface Assignment {
+  id: string;
   person: string;
   tasks: string;
 }
 
 export default function Acceuil() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [docId, setDocId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const q = query(
-        collection(db, 'assignments'),
-        orderBy('createdAt', 'desc')
-      );
-      const snap = await getDocs(q);
-      const latest = snap.docs[0]?.data()?.result || '';
+      const auth = getAuth();
 
-      const parsed: Assignment[] = latest
-        .split('\n')
-        .map((line: string) => line.trim())
-        .filter((line: any) => line && line.includes(':'))
-        .map((line: any) => {
-          const [person, tasks] = line.split(':');
-          return {
-            person: person.trim(),
-            tasks: tasks.trim(),
-          };
-        });
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          setAssignments([]);
+          setDocId(null);
+          setLoading(false);
+          return;
+        }
 
-      setAssignments(parsed);
+        const q = query(
+          collection(db, 'assignments'),
+          where('uid', '==', user.uid),
+          orderBy('createdAt', 'desc')
+        );
+
+        const snap = await getDocs(q);
+        const firstDoc = snap.docs[0];
+        if (!firstDoc) {
+          setAssignments([]);
+          setDocId(null);
+          setLoading(false);
+          return;
+        }
+
+        setDocId(firstDoc.id);
+
+        const result = firstDoc.data()?.result || '';
+        const parsed: Assignment[] = result
+          .split('\n')
+          .map((line: string) => line.trim())
+          .filter((line: any) => line && line.includes(':'))
+          .map((line: any, index: number) => {
+            const [person, tasks] = line.split(':');
+            return {
+              id: `${index}`,
+              person: person.trim(),
+              tasks: tasks.trim(),
+            };
+          });
+
+        setAssignments(parsed);
+        setLoading(false);
+      });
     };
 
     load();
   }, []);
 
+  const handleDelete = async () => {
+    if (!docId) return;
+    await deleteDoc(doc(db, 'assignments', docId));
+    setAssignments([]);
+    setDocId(null);
+  };
+
   return (
     <>
       <Nav />
-      <div className="p-8 flex justify-center">
+      <div className="p-8 flex flex-col items-center gap-6">
         <Card className="w-full max-w-2xl">
           <CardContent className="p-4">
-            <h2 className="text-xl font-bold mb-4">Répartition des tâches</h2>
-            <table className="w-full table-auto border-collapse">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-2">Personne</th>
-                  <th className="text-left p-2">Tâches</th>
-                </tr>
-              </thead>
-              <tbody>
-                {assignments.map((a, idx) => (
-                  <tr key={idx} className="border-b">
-                    <td className="p-2 font-medium">{a.person}</td>
-                    <td className="p-2">{a.tasks}</td>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Répartition des tâches</h2>
+              {docId && (
+                <Button variant="destructive" onClick={handleDelete}>
+                  Supprimer
+                </Button>
+              )}
+            </div>
+
+            {loading ? (
+              <p>Chargement...</p>
+            ) : assignments.length === 0 ? (
+              <p>Aucune répartition trouvée.</p>
+            ) : (
+              <table className="w-full table-auto border-collapse">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-2">Personne</th>
+                    <th className="text-left p-2">Tâches</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {assignments.map((a) => (
+                    <tr key={a.id} className="border-b">
+                      <td className="p-2 font-medium">{a.person}</td>
+                      <td className="p-2">{a.tasks}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </CardContent>
         </Card>
       </div>

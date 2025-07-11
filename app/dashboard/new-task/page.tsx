@@ -1,6 +1,8 @@
 'use client';
 
 import Nav from '@/src/components/Nav';
+import { useRouter } from 'next/navigation';
+import { getAuth } from 'firebase/auth';
 import { Person } from '@/src/components/Person';
 import { Task } from '@/src/components/Task';
 import { Button } from '@/src/components/ui/button';
@@ -9,10 +11,12 @@ import { useSelectionStore } from '@/src/lib/useStore';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import Loading from '@/src/components/Loading';
 
 export default function NewTaskPage() {
   const { persons, tasks } = useSelectionStore();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async () => {
     if (!persons.length || !tasks.length) {
@@ -24,34 +28,48 @@ export default function NewTaskPage() {
 
     setLoading(true);
 
-    const res = await fetch('/api/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ tasks, persons }),
-    });
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ tasks, persons }),
+      });
 
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error('Erreur API :', errorText);
-      toast.error('Erreur API lors de la génération');
-      setLoading(false);
-      return;
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || 'Erreur API lors de la génération');
+      }
+
+      const data = await res.json();
+      const result = data.result;
+
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (!user) {
+        throw new Error('Vous devez être connecté pour valider');
+      }
+
+      await addDoc(collection(db, 'assignments'), {
+        result,
+        createdAt: serverTimestamp(),
+        uid: user.uid,
+      });
+
+      toast.success('Répartition enregistrée !');
+      setTimeout(() => {
+        router.push('/dashboard/acceuil');
+      }, 1000);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || 'Une erreur est survenue.');
     }
-
-    const data = await res.json(); // maintenant c’est sûr qu’il y a du JSON
-    const result = data.result;
-
-    // Enregistrement dans Firestore
-    await addDoc(collection(db, 'assignments'), {
-      result,
-      createdAt: serverTimestamp(),
-    });
-
-    setLoading(false);
-    toast.success('Répartition enregistrée !');
   };
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <>
@@ -66,7 +84,7 @@ export default function NewTaskPage() {
           onClick={handleSubmit}
           disabled={loading}
         >
-          {loading ? 'Chargement...' : 'Valider'}
+          Valider
         </Button>
       </div>
     </>
