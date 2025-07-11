@@ -87,7 +87,7 @@ const SignIn = () => {
     <div className="min-h-screen flex items-center justify-center">
       <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
         <h1 className="text-white text-2xl mb-5 text-center font-pacifico">
-          Sign In
+          Connexion
         </h1>
 
         <input
@@ -125,7 +125,7 @@ const SignIn = () => {
           onClick={handleSignIn}
           className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500"
         >
-          Sign In
+          Connexion
         </button>
 
         {signInError && (
@@ -136,7 +136,9 @@ const SignIn = () => {
 
         <div className="text-center">
           <Button asChild variant="link">
-            <Link href="/sign-up">Don&apos;t have an account? Sign up</Link>
+            <Link href="/sign-up" className="text-white">
+              Pas de compte ? S'inscrire
+            </Link>
           </Button>
         </div>
       </div>

@@ -67,7 +67,7 @@ const SignUp = () => {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
-        <h1 className="text-white text-2xl mb-5 text-center">Sign Up</h1>
+        <h1 className="text-white text-2xl mb-5 text-center">Inscription</h1>
 
         <input
           type="email"
@@ -103,15 +103,17 @@ const SignUp = () => {
           onClick={handleSignUp}
           className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500"
         >
-          Sign Up
+          S'inscrire
         </button>
 
         {error && (
           <p className="text-red-500 mt-4 text-sm">Erreur : {error.message}</p>
         )}
-        <div className="text-center text-white">
+        <div className="text-center">
           <Button asChild variant="link">
-            <Link href="/sign-in">Already have an account? Sign in</Link>
+            <Link href="/sign-in" className="text-white">
+              Vous avez déjà un compte ? Se connecter
+            </Link>
           </Button>
         </div>
       </div>

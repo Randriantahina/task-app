@@ -33,21 +33,7 @@ export default function Nav() {
   return (
     <nav className="max-w-[1200px] w-full mx-auto h-[60px] flex items-center justify-between p-5 border  my-6 rounded-md  border-gray-300">
       <div>
-        {user && user.displayName ? (
-          <span className="text-lg font-semibold text-gray-800">
-            Bienvenu, {user.displayName ?? user.email}!
-          </span>
-        ) : (
-          <Link href="/">
-            <Image
-              width={30}
-              height={30}
-              src={LogoMdc}
-              className="w-12 h-12"
-              alt=""
-            />
-          </Link>
-        )}
+        <h1 className="font-bold">Bienvenue dans Task</h1>
       </div>
 
       <div className="flex items-center gap-4">
@@ -63,7 +49,7 @@ export default function Nav() {
           href="/dashboard/new-task"
           className="text-gray-700 hover:text-indigo-600 font-medium"
         >
-          New task
+          tâche
         </Link>
 
         <Button

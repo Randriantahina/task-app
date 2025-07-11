@@ -16,31 +16,60 @@ import {
   FormLabel,
   FormMessage,
 } from './ui/form';
+import { useSelectionStore } from '../lib/useStore';
 
 const items = [
   {
-    id: 'recents',
-    label: 'Recents',
+    id: 'Murphy',
+    label: 'Murphy',
   },
   {
-    id: 'home',
-    label: 'Home',
+    id: 'Patricia',
+    label: 'Patricia',
   },
   {
-    id: 'applications',
-    label: 'Applications',
+    id: 'Flavie',
+    label: 'Christinah',
   },
   {
-    id: 'desktop',
-    label: 'Desktop',
+    id: 'Fety',
+    label: 'Fety',
   },
   {
-    id: 'downloads',
-    label: 'Downloads',
+    id: 'Colombe',
+    label: 'Colombe',
   },
   {
-    id: 'documents',
-    label: 'Documents',
+    id: 'Julie',
+    label: 'Julie',
+  },
+  {
+    id: 'Kezia',
+    label: 'Kezia',
+  },
+  {
+    id: 'Stella',
+    label: 'Stella',
+  },
+  {
+    id: 'Michella',
+    label: 'Michella',
+  },
+  {
+    id: 'Jeanelah',
+    label: 'Jeanelah',
+  },
+  {
+    id: 'Noemy',
+    label: 'Noemy',
+  },
+  {
+    id: 'Linda',
+    label: 'Linda',
+  },
+  {
+    id: 'Kanto',
+    label: 'Kanto',
   },
 ] as const;
 
@@ -50,7 +79,7 @@ const FormSchema = z.object({
   }),
 });
 
-export function CheckboxReactHookFormMultiple() {
+export function Person() {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -59,15 +88,19 @@ export function CheckboxReactHookFormMultiple() {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast('You submitted the following values', {
+    const { setPersons } = useSelectionStore.getState(); // récupère la fonction du store
+    setPersons(data.items); // enregistre les personnes sélectionnées
+
+    toast.success('Personnes sélectionnées enregistrées', {
       description: (
         <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+          <code className="text-white">
+            {JSON.stringify(data.items, null, 2)}
+          </code>
         </pre>
       ),
     });
   }
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -75,11 +108,11 @@ export function CheckboxReactHookFormMultiple() {
           control={form.control}
           name="items"
           render={() => (
-            <FormItem>
+            <FormItem className="border rounded-md p-4">
               <div className="mb-4">
-                <FormLabel className="text-base">Sidebar</FormLabel>
+                <FormLabel className="text-base">Personne</FormLabel>
                 <FormDescription>
-                  Select the items you want to display in the sidebar.
+                  Sélectionnez les personnes à attribuer à la tâche.
                 </FormDescription>
               </div>
               {items.map((item) => (
@@ -119,6 +152,9 @@ export function CheckboxReactHookFormMultiple() {
             </FormItem>
           )}
         />
+        <Button type="submit" className="w-full">
+          Ajouter
+        </Button>
       </form>
     </Form>
   );
