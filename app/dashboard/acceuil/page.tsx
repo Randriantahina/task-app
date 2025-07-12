@@ -63,8 +63,8 @@ export default function Acceuil() {
         const parsed: Assignment[] = result
           .split('\n')
           .map((line: string) => line.trim())
-          .filter((line: any) => line && line.includes(':'))
-          .map((line: any, index: number) => {
+          .filter((line: string) => line && line.includes(':'))
+          .map((line: string, index: number) => {
             const [person, tasks] = line.split(':');
             return {
               id: `${index}`,

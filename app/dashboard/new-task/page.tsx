@@ -62,9 +62,14 @@ export default function NewTaskPage() {
       setTimeout(() => {
         router.push('/dashboard/acceuil');
       }, 1000);
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.message || 'Une erreur est survenue.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(err);
+        toast.error(err.message || 'Une erreur est survenue.');
+      } else {
+        console.error(err);
+        toast.error('Une erreur est survenue.');
+      }
     }
   };
 

@@ -63,7 +63,7 @@ export function Task() {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      items: ['recents', 'home'],
+      items: items.map((item) => item.id),
     },
   });
 

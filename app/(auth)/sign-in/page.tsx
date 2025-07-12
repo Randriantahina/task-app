@@ -47,7 +47,7 @@ const SignIn = () => {
 
       if (!userDocSnap.exists()) {
         toast.error(
-          "Ce compte n'est pas encore enregistré dans la base de données."
+          'Ce compte n&rsquo;est pas encore enregistré dans la base de données.'
         );
         return;
       }
@@ -139,7 +139,7 @@ const SignIn = () => {
         <div className="mt-4 text-center">
           <Button asChild variant="link">
             <Link href="/sign-up" className="text-white hover:underline">
-              Pas de compte ? S'inscrire
+              Pas de compte ? S&rsquo;inscrire
             </Link>
           </Button>
         </div>
