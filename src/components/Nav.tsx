@@ -10,7 +10,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { LogOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import Loading from './Loading'; // ✅ ajout
+import Loading from './Loading';
 
 export default function Nav() {
   const [user] = useAuthState(auth);
@@ -33,12 +33,14 @@ export default function Nav() {
   }
 
   return (
-    <nav className="max-w-[1200px] w-full mx-auto h-[60px] flex items-center justify-between p-5 border my-6 rounded-md border-gray-300">
+    <nav className="max-w-[1200px] w-full mx-auto h-auto flex flex-col md:flex-row items-center justify-between p-5 border my-6 rounded-md border-gray-300 gap-4 md:gap-0">
       <div>
-        <h1 className="font-bold">Bienvenue dans Task</h1>
+        <h1 className="font-bold text-lg text-center md:text-left">
+          Bienvenue dans Task
+        </h1>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row items-center gap-4">
         {/* Lien vers l'accueil */}
         <button
           onClick={() => {

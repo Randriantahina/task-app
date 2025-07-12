@@ -59,16 +59,17 @@ const SignUp = () => {
 
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
-  // 👉 Affiche le loader si loading === true
   if (loading) {
     return <Loading />;
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      {/* Container responsive */}
+      <div className="bg-gray-800 p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-md mx-auto">
         <h1 className="text-white text-2xl mb-5 text-center">Inscription</h1>
 
+        {/* Email input */}
         <input
           type="email"
           placeholder="Email"
@@ -76,6 +77,8 @@ const SignUp = () => {
           onChange={handleEmailChange}
           className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
         />
+
+        {/* Password input avec bouton toggle */}
         <div className="relative mb-4">
           <input
             type={showPassword ? 'text' : 'password'}
@@ -99,19 +102,23 @@ const SignUp = () => {
           </button>
         </div>
 
+        {/* Bouton d'inscription */}
         <button
           onClick={handleSignUp}
-          className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500"
+          className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500 transition-colors duration-200"
         >
           S'inscrire
         </button>
 
+        {/* Affichage erreur */}
         {error && (
           <p className="text-red-500 mt-4 text-sm">Erreur : {error.message}</p>
         )}
-        <div className="text-center">
+
+        {/* Lien de connexion */}
+        <div className="mt-4 text-center">
           <Button asChild variant="link">
-            <Link href="/sign-in" className="text-white">
+            <Link href="/sign-in" className="text-white hover:underline">
               Vous avez déjà un compte ? Se connecter
             </Link>
           </Button>

@@ -7,10 +7,10 @@ export default function Loading() {
         <div
           aria-label="Chargement..."
           role="status"
-          className="flex items-center space-x-2"
+          className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4"
         >
           <svg
-            className="h-20 w-20 animate-spin stroke-[var(--u-secondary-color)]"
+            className="h-16 w-16 md:h-20 md:w-20 animate-spin stroke-[var(--u-secondary-color)]"
             viewBox="0 0 256 256"
           >
             <line
@@ -86,7 +86,9 @@ export default function Loading() {
               strokeWidth="24"
             ></line>
           </svg>
-          <span className="text-4xl font-medium">Chargement...</span>
+          <span className="text-2xl md:text-4xl font-medium">
+            Chargement...
+          </span>
         </div>
       </div>
     </div>

@@ -27,7 +27,6 @@ const SignIn = () => {
 
   useEffect(() => {
     if (!authLoading && user) {
-      // L’utilisateur est connecté, redirection vers dashboard
       router.push('/dashboard/acceuil');
     }
   }, [user, authLoading, router]);
@@ -57,7 +56,6 @@ const SignIn = () => {
       sessionStorage.setItem('user', 'true');
       setEmail('');
       setPassword('');
-      // Pas besoin de router.push ici
     } catch (e) {
       console.error('Erreur lors de la connexion :', e);
       toast.error('Erreur de connexion. Vérifiez votre email et mot de passe.');
@@ -73,23 +71,23 @@ const SignIn = () => {
   };
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
-  // Affiche loading global ou loading connexion
   if (authLoading || signInLoading) {
     return <Loading />;
   }
 
-  // Si utilisateur connecté, on ne montre rien car redirection en cours dans useEffect
   if (user) {
     return null;
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      {/* Container responsive */}
+      <div className="bg-gray-800 p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-md mx-auto">
         <h1 className="text-white text-2xl mb-5 text-center font-pacifico">
           Connexion
         </h1>
 
+        {/* Email input */}
         <input
           type="email"
           placeholder="Email"
@@ -98,6 +96,7 @@ const SignIn = () => {
           className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
         />
 
+        {/* Password input avec bouton toggle */}
         <div className="relative mb-4">
           <input
             type={showPassword ? 'text' : 'password'}
@@ -121,22 +120,25 @@ const SignIn = () => {
           </button>
         </div>
 
+        {/* Bouton de connexion */}
         <button
           onClick={handleSignIn}
-          className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500"
+          className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500 transition-colors duration-200"
         >
           Connexion
         </button>
 
+        {/* Affichage erreur si erreur de signin */}
         {signInError && (
           <p className="text-red-500 mt-4 text-sm">
             Erreur : {signInError.message}
           </p>
         )}
 
-        <div className="text-center">
+        {/* Lien d'inscription */}
+        <div className="mt-4 text-center">
           <Button asChild variant="link">
-            <Link href="/sign-up" className="text-white">
+            <Link href="/sign-up" className="text-white hover:underline">
               Pas de compte ? S'inscrire
             </Link>
           </Button>

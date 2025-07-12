@@ -67,6 +67,7 @@ export default function NewTaskPage() {
       toast.error(err.message || 'Une erreur est survenue.');
     }
   };
+
   if (loading) {
     return <Loading />;
   }
@@ -74,13 +75,15 @@ export default function NewTaskPage() {
   return (
     <>
       <Nav />
-      <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-8">
-        <div className="flex gap-4">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-4 md:p-8">
+        {/* La disposition s'adapte avec flex-col sur mobile et flex-row sur md+ */}
+        <div className="flex flex-col md:flex-row gap-4 w-full max-w-4xl">
           <Person />
           <Task />
         </div>
+        {/* La largeur du bouton est responsive */}
         <Button
-          className="mt-8 mx-auto"
+          className="mt-8 w-full max-w-xs mx-auto"
           onClick={handleSubmit}
           disabled={loading}
         >
