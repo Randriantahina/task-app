@@ -14,7 +14,7 @@ const SignUp = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState(false);
-  const [createUserWithEmailAndPassword, user, loading, error] =
+  const [createUserWithEmailAndPassword, , loading, error] =
     useCreateUserWithEmailAndPassword(auth);
   const router = useRouter();
 
@@ -107,7 +107,7 @@ const SignUp = () => {
           onClick={handleSignUp}
           className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500 transition-colors duration-200"
         >
-          S'inscrire
+          S&rsquo;inscrire
         </button>
 
         {/* Affichage erreur */}

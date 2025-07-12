@@ -1,8 +1,5 @@
 'use client';
 
-import LogoMdc from '../../public/next.svg';
-import Image from 'next/image';
-import Link from 'next/link';
 import { Button } from './ui/button';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useRouter } from 'next/navigation';
